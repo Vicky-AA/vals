@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Nichole Darling</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --pink: #ff4d6d; --white: #ffffff; }
+        
+        body, html { 
+            margin: 0; padding: 0; height: 100%; width: 100%; 
+            font-family: 'Arial Rounded MT Bold', sans-serif;
+            background-color: white;
+            overflow: hidden;
+        }
+
+        /* 1. CLEAR COLLAGE BACKGROUND */
+        .background-collage {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            z-index: -1; /* Stays behind everything */
+        }
+        .background-collage img { width: 100%; height: 100%; object-fit: cover; border: 1px solid white; }
+
+        /* 2. OVERLAY PAGE */
+        #overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--pink); z-index: 9999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; 
+        }
+        .intro-box { background: rgba(0, 0, 0, 0.2); padding: 25px 40px; border-radius: 20px; margin-bottom: 30px; }
+        #start-btn { padding: 20px 50px; font-size: 1.8rem; background: white; color: var(--pink); border: none; border-radius: 50px; cursor: pointer; font-weight: bold; }
+
+        /* 3. MAIN ASKING PAGE */
+        #content { 
+            display: none; text-align: center; width: 100%; height: 100vh; 
+            /* ADD YOUR MAIN BACKGROUND IMAGE HERE */
+            background-image: url('asking-bg.jpg'); 
+            background-size: cover; background-position: center;
+        }
+
+        .question-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px; border-radius: 30px; display: inline-block;
+            border: 4px solid var(--pink); margin-top: 10vh; max-width: 85%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 { color: var(--pink); font-size: 1.6rem; line-height: 1.4; margin: 0; }
+
+        .btn-container { margin-top: 50px; display: flex; justify-content: center; align-items: center; gap: 40px; position: relative; height: 150px; }
+        button { padding: 15px 45px; font-size: 1.4rem; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; }
+        
+        #yesBtn { background: #4CAF50; color: white; z-index: 10; transition: transform 0.2s; }
+        #noBtn { background: var(--pink); color: white; z-index: 10; position: relative; }
+
+        /* 4. FINAL NOTE (NO FLAP) */
+        #note-wrapper {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 100; text-align: center;
+        }
+        .open-card {
+            background: white; width: 320px; padding: 40px 20px;
+            border-radius: 15px; border: 5px solid var(--pink);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            animation: slideUp 1s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(100vh); } to { transform: translateY(0); } }
+
+        .floating-text { position: absolute; pointer-events: none; color: white; font-weight: bold; animation: floatUp 3s linear forwards; z-index: 1000; text-shadow: 2px 2px var(--pink); }
+        @keyframes floatUp { to { transform: translateY(-100vh) rotate(20deg); opacity: 0; } }
+        
+        .shake-screen { animation: shake 0.15s infinite; }
+        @keyframes shake { 0% { transform: translate(3px, 3px); } 50% { transform: translate(-3px, -3px); } 100% { transform: translate(3px, -3px); } }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">
+        <div class="intro-box">
+            <h1 style="color: white; margin:0;">For Nichole darling... ❤️</h1>
+        </div>
+        <button id="start-btn">OPEN IT</button>
+    </div>
+
+    <div class="background-collage">
+<img src="pic1.jpg"> <img src="pic2.jpg"> <img src="pic3.jpg">
+        <img src="pic4.jpg"> <img src="pic5.jpg"> <img src="pic6.jpg">
+        <img src="pic7.jpg"> <img src="pic8.jpg"> <img src="pic9.jpg">
+    </div>
+
+    <div id="player" style="position: absolute; top: -1000px;"></div>
+
+    <div id="content">
+        <div class="question-card">
+            <h1>I don’t really like February 14 but maybe I could be the 1 4 you. <br><br> Be my valentine pookie ❤️‍🔥</h1>
+        </div>
+        <div class="btn-container" id="btnGroup">
+            <button id="yesBtn">YES</button>
+            <button id="noBtn">NO</button>
+        </div>
+    </div>
+
+    <div id="note-wrapper">
+        <div class="open-card">
+            <p style="font-size: 1.2rem; color: #333; line-height: 1.6; margin:0;">
+                “I appreciate you my love and cheers to more joy and love ❤️‍🔥
+                <br><br>
+                <strong>from Vicky❤️‍🔥</strong>”
+            </p>
+        </div>
+        <p style="color: white; font-weight: bold; margin-top: 20px; text-shadow: 2px 2px var(--pink);">You're the 1 4 me! ❤️</p>
+    </div>
+
+    <script>
+        let noCount = 0;
+        let yesScale = 1;
+        const noPhrases = ["pleaseeeeee say yes", "why wont you say yes", "to say yessss", "baby whyyyyyyy", "you can’t say no"];
+
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', { height: '0', width: '0', videoId: '5jEHDzXlPs0', playerVars: { 'autoplay': 1, 'controls': 0 } });
+        }
+
+        document.getElementById('start-btn').onclick = function() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            if (player && player.playVideo) { player.playVideo(); }
+        };
+
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+
+        function moveNo() {
+            if (noCount < noPhrases.length) {
+                noBtn.innerText = noPhrases[noCount];
+                const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+                const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+                noBtn.style.position = 'fixed';
+                noBtn.style.left = x + 'px';
+                noBtn.style.top = y + 'px';
+                yesScale += 0.8; 
+                yesBtn.style.transform = "scale(" + yesScale + ")";
+                noCount++;
+            } else { noBtn.style.display = 'none'; }
+        }
+
+        noBtn.addEventListener('mouseenter', moveNo);
+        noBtn.addEventListener('click', moveNo);
+
+        yesBtn.onclick = function() {
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('note-wrapper').style.display = 'block';
+            document.body.classList.add('shake-screen');
+
+            confetti({ particleCount: 300, spread: 160, origin: { y: 0.6 } });
+
+            setInterval(function() {
+                const el = document.createElement('div');
+                el.className = 'floating-text';
+                const items = ['I Love You', '❤️', '💖', '💍', '🔥', 'Nichole'];
+                el.innerText = items[Math.floor(Math.random() * items.length)];
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.top = '100vh';
+                el.style.fontSize = (Math.random() * 30 + 25) + 'px';
+                document.body.appendChild(el);
+                setTimeout(function() { el.remove(); }, 3000);
+            }, 100);
+
+            // Shakes for a few seconds of excitement then stops
+            setTimeout(() => { document.body.classList.remove('shake-screen'); }, 4000);
+        };
+    </script>
+</body>
+</html>
